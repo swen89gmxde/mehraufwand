@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zusatzauftrag / Mehrleistung | Sichtwerk - Neubauer</title>
+<style>
+:root{
+  --bg:#eef2f6;--card:#fff;--text:#17212b;--muted:#5d6873;
+  --line:#cfd7df;--accent:#1769aa;--accent-dark:#0f4f83;--danger:#b42318
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Segoe UI,Roboto,Arial,sans-serif;line-height:1.4}
+.page{max-width:760px;margin:18px auto;padding:22px;background:var(--card);border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.08)}
+h1{margin:0;font-size:1.45rem}
+.head{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:18px}
+.company,.stamp{color:var(--muted);font-size:.9rem}
+.stamp{text-align:right;white-space:nowrap}
+label{display:block;margin:13px 0 5px;font-weight:650;font-size:.92rem}
+input,textarea,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text);font:inherit}
+textarea{min-height:78px;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:2px solid rgba(23,105,170,.2);border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.notice{margin:16px 0 0;padding:12px 14px;background:#f4f8fc;border-left:4px solid var(--accent);border-radius:6px;font-size:.92rem}
+.confirm{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:13px;border:1px solid var(--line);border-radius:9px;background:#fafbfd}
+.confirm input{width:auto;margin-top:4px;transform:scale(1.2);accent-color:var(--accent)}
+.signature{margin-top:14px;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff}
+canvas{display:block;width:100%;height:160px;touch-action:none;cursor:crosshair;background:#fff}
+.siglabel{padding:7px 10px;border-top:1px solid var(--line);color:var(--muted);font-size:.82rem}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+button{border:0;border-radius:8px;padding:11px 15px;font:inherit;font-weight:700;cursor:pointer}
+.primary{background:var(--accent);color:#fff}.primary:hover{background:var(--accent-dark)}
+.secondary{background:#e7edf3;color:var(--text)}
+.status{min-height:24px;margin-top:9px;font-weight:650}.error{color:var(--danger)}.success{color:#067647}
+.footer{margin-top:18px;text-align:center;color:var(--muted);font-size:.75rem}
+
+/* Reine Druckansicht: keine Formularfelder, kein Hintergrundbild, nur Vektortext
+   und eine kleine komprimierte Unterschrift. */
+#printView{display:none}
+.print-title{font-size:18pt;font-weight:700;margin:0}
+.print-company{font-size:10pt;margin-top:1mm}
+.print-meta{font-size:9pt;text-align:right;white-space:nowrap}
+.print-head{display:flex;justify-content:space-between;gap:10mm;border-bottom:1px solid #555;padding-bottom:3mm;margin-bottom:4mm}
+.print-section{margin-top:3.5mm}
+.print-label{font-size:8.5pt;font-weight:700;margin-bottom:1mm}
+.print-value{font-size:10pt;white-space:pre-wrap;overflow-wrap:anywhere;border-bottom:1px solid #aaa;padding:1.5mm 0 2mm;min-height:7mm}
+.print-two{display:grid;grid-template-columns:1fr 1fr;gap:7mm}
+.print-note{margin-top:4mm;border:1px solid #777;padding:3mm;font-size:9pt}
+.print-confirm{margin-top:4mm;font-size:9.5pt;font-weight:600}
+.print-signature{margin-top:4mm;width:100%;height:32mm;border-bottom:1px solid #555;display:flex;align-items:flex-end}
+.print-signature img{display:block;max-width:100%;max-height:29mm;object-fit:contain;object-position:left bottom}
+.print-signature-label{font-size:8pt;margin-top:1mm}
+.print-footer{margin-top:5mm;text-align:center;font-size:7.5pt;color:#555}
+
+@media(max-width:620px){
+  .page{margin:0;padding:16px;border-radius:0;box-shadow:none}
+  .head{display:block}.stamp{text-align:left;margin-top:5px}
+  .grid{grid-template-columns:1fr}
+  h1{font-size:1.3rem}
+}
+@page{size:A4 portrait;margin:10mm}
+@media print{
+  html,body{background:#fff!important}
+  #formView{display:none!important}
+  #printView{display:block!important}
+  body{margin:0;font-family:Arial,sans-serif;color:#000;line-height:1.25}
+}
+</style>
+</head>
+<body>
+
+<main class="page" id="formView">
+  <div class="head">
+    <div>
+      <h1>Zusatzauftrag / Mehrleistung</h1>
+      <div class="company">Sichtwerk - Neubauer</div>
+    </div>
+    <div class="stamp" id="stamp"></div>
+  </div>
+
+  <label for="reference">Kunde, Objekt oder Auftragsnummer</label>
+  <input id="reference" placeholder="Zur eindeutigen Zuordnung" autocomplete="off">
+
+  <label for="reason">Festgestellte Gegebenheit / Grund</label>
+  <textarea id="reason" placeholder="Warum ist die Mehrleistung erforderlich?"></textarea>
+
+  <label for="work">Beauftragte zusätzliche Arbeiten und Materialien</label>
+  <textarea id="work" placeholder="Kurz und konkret beschreiben"></textarea>
+
+  <div class="grid">
+    <div>
+      <label for="billing">Abrechnung</label>
+      <select id="billing">
+        <option value="">Bitte auswählen</option>
+        <option>Vereinbarter Festpreis</option>
+        <option>Nach dokumentiertem Zeit- und Materialaufwand</option>
+      </select>
+    </div>
+    <div>
+      <label for="cost">Vereinbarte / voraussichtliche Mehrkosten brutto</label>
+      <input id="cost" inputmode="decimal" placeholder="z. B. 250,00 €">
+    </div>
+  </div>
+
+  <div class="notice">
+    Grund, Umfang, Abrechnung und voraussichtliche Mehrkosten der zusätzlichen Leistung wurden vor der Ausführung besprochen.
+    Wird eine wesentliche Überschreitung der genannten Kostenschätzung erkennbar, erfolgt vor weiteren Zusatzarbeiten eine erneute Abstimmung.
+  </div>
+
+  <label class="confirm">
+    <input id="consent" type="checkbox">
+    <span>Ich bestätige die Besprechung und beauftrage Sichtwerk - Neubauer ausdrücklich mit der oben beschriebenen Mehrleistung. Der ursprüngliche Auftrag bleibt im Übrigen unverändert.</span>
+  </label>
+
+  <div class="signature">
+    <canvas id="signature" aria-label="Unterschriftsfeld"></canvas>
+    <div class="siglabel">Unterschrift Auftraggeber / Kunde</div>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="secondary" id="clear">Unterschrift löschen</button>
+    <button type="button" class="primary" id="print">Kleine PDF erstellen</button>
+  </div>
+  <div id="status" class="status" role="status" aria-live="polite"></div>
+
+  <div class="footer">Im Druckfenster „Als PDF speichern“ auswählen. Die PDF wird kompakt und ohne großflächige Bilder erzeugt.</div>
+</main>
+
+<section id="printView" aria-hidden="true">
+  <div class="print-head">
+    <div>
+      <p class="print-title">Zusatzauftrag / Mehrleistung</p>
+      <div class="print-company">Sichtwerk - Neubauer</div>
+    </div>
+    <div class="print-meta" id="pStamp"></div>
+  </div>
+
+  <div class="print-section">
+    <div class="print-label">Kunde, Objekt oder Auftragsnummer</div>
+    <div class="print-value" id="pReference"></div>
+  </div>
+
+  <div class="print-section">
+    <div class="print-label">Festgestellte Gegebenheit / Grund</div>
+    <div class="print-value" id="pReason"></div>
+  </div>
+
+  <div class="print-section">
+    <div class="print-label">Beauftragte zusätzliche Arbeiten und Materialien</div>
+    <div class="print-value" id="pWork"></div>
+  </div>
+
+  <div class="print-two">
+    <div class="print-section">
+      <div class="print-label">Abrechnung</div>
+      <div class="print-value" id="pBilling"></div>
+    </div>
+    <div class="print-section">
+      <div class="print-label">Vereinbarte / voraussichtliche Mehrkosten brutto</div>
+      <div class="print-value" id="pCost"></div>
+    </div>
+  </div>
+
+  <div class="print-note">
+    Grund, Umfang, Abrechnung und voraussichtliche Mehrkosten der zusätzlichen Leistung wurden vor der Ausführung besprochen.
+    Wird eine wesentliche Überschreitung der genannten Kostenschätzung erkennbar, erfolgt vor weiteren Zusatzarbeiten eine erneute Abstimmung.
+  </div>
+
+  <div class="print-confirm">
+    Der Auftraggeber bestätigt die Besprechung und beauftragt Sichtwerk - Neubauer ausdrücklich mit der oben beschriebenen Mehrleistung.
+    Der ursprüngliche Auftrag bleibt im Übrigen unverändert.
+  </div>
+
+  <div class="print-signature">
+    <img id="pSignature" alt="Unterschrift Auftraggeber">
+  </div>
+  <div class="print-signature-label">Unterschrift Auftraggeber / Kunde</div>
+
+  <div class="print-footer">Dokumentiert am oben angegebenen Datum und zur Aushändigung an den Auftraggeber bestimmt.</div>
+</section>
+
+<script>
+const canvas=document.getElementById("signature");
+const ctx=canvas.getContext("2d");
+let drawing=false,signed=false;
+let dateText="",timeText="";
+
+function nowStamp(){
+  const now=new Date();
+  dateText=now.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+  timeText=now.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
+  document.getElementById("stamp").textContent="Erstellt am "+dateText+" um "+timeText+" Uhr";
+}
+function resetWhiteBackground(){
+  ctx.save();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle="#fff";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.restore();
+}
+function resizeCanvas(){
+  /* Bewusst nur 1x Auflösung: für eine Unterschrift völlig ausreichend und
+     deutlich kleiner als die übliche 2x/3x Smartphone-Auflösung. */
+  const rect=canvas.getBoundingClientRect();
+  const old=signed?canvas.toDataURL("image/png"):null;
+  canvas.width=Math.max(320,Math.round(rect.width));
+  canvas.height=160;
+  ctx.setTransform(1,0,0,1,0,0);
+  resetWhiteBackground();
+  ctx.lineWidth=2;
+  ctx.lineCap="round";
+  ctx.lineJoin="round";
+  ctx.strokeStyle="#111";
+  if(old){
+    const img=new Image();
+    img.onload=()=>{
+      resetWhiteBackground();
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    };
+    img.src=old;
+  }
+}
+function pos(e){
+  const rect=canvas.getBoundingClientRect();
+  const p=e.touches?e.touches[0]:e;
+  return{
+    x:(p.clientX-rect.left)*(canvas.width/rect.width),
+    y:(p.clientY-rect.top)*(canvas.height/rect.height)
+  };
+}
+function start(e){
+  e.preventDefault();
+  if(!signed){resetWhiteBackground();}
+  drawing=true;signed=true;
+  const p=pos(e);
+  ctx.beginPath();ctx.moveTo(p.x,p.y);
+}
+function move(e){
+  if(!drawing)return;
+  e.preventDefault();
+  const p=pos(e);
+  ctx.lineTo(p.x,p.y);ctx.stroke();
+}
+function end(e){
+  if(e)e.preventDefault();
+  drawing=false;ctx.closePath();
+}
+["mousedown","touchstart"].forEach(t=>canvas.addEventListener(t,start,{passive:false}));
+["mousemove","touchmove"].forEach(t=>canvas.addEventListener(t,move,{passive:false}));
+["mouseup","mouseleave","touchend","touchcancel"].forEach(t=>canvas.addEventListener(t,end,{passive:false}));
+
+document.getElementById("clear").addEventListener("click",()=>{
+  resetWhiteBackground();
+  signed=false;
+  document.getElementById("status").textContent="";
+});
+
+function validate(){
+  const fields=[
+    ["reference","Bitte Kunde, Objekt oder Auftragsnummer eintragen."],
+    ["reason","Bitte den Grund der Mehrleistung eintragen."],
+    ["work","Bitte die Mehrleistung beschreiben."],
+    ["billing","Bitte die Abrechnung auswählen."],
+    ["cost","Bitte die vereinbarten oder voraussichtlichen Mehrkosten eintragen."]
+  ];
+  for(const [id,msg] of fields){
+    const el=document.getElementById(id);
+    if(!el.value.trim()){el.focus();return msg}
+  }
+  if(!document.getElementById("consent").checked)return"Bitte die Beauftragung durch das Häkchen bestätigen.";
+  if(!signed)return"Bitte im Unterschriftsfeld unterschreiben.";
+  return"";
+}
+function compactSignature(){
+  /* Verkleinerte Schwarz-Weiß-nahe PNG-Datei. Wegen der großen weißen Flächen
+     bleibt sie normalerweise nur wenige KB groß. */
+  const out=document.createElement("canvas");
+  out.width=520;
+  out.height=115;
+  const o=out.getContext("2d");
+  o.fillStyle="#fff";
+  o.fillRect(0,0,out.width,out.height);
+  o.drawImage(canvas,0,0,out.width,out.height);
+  return out.toDataURL("image/png");
+}
+function preparePrintView(){
+  document.getElementById("pStamp").textContent=dateText+", "+timeText+" Uhr";
+  document.getElementById("pReference").textContent=document.getElementById("reference").value.trim();
+  document.getElementById("pReason").textContent=document.getElementById("reason").value.trim();
+  document.getElementById("pWork").textContent=document.getElementById("work").value.trim();
+  document.getElementById("pBilling").textContent=document.getElementById("billing").value.trim();
+  document.getElementById("pCost").textContent=document.getElementById("cost").value.trim();
+  document.getElementById("pSignature").src=compactSignature();
+}
+document.getElementById("print").addEventListener("click",()=>{
+  const s=document.getElementById("status"),err=validate();
+  if(err){
+    s.className="status error";s.textContent=err;return;
+  }
+  preparePrintView();
+  s.className="status success";
+  s.textContent="Vollständig - im Druckfenster „Als PDF speichern“ wählen.";
+  window.print();
+});
+
+window.addEventListener("resize",resizeCanvas);
+window.addEventListener("load",()=>{nowStamp();resizeCanvas()});
+</script>
+</body>
+</html>
